@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <title>Orbit — An Interactive Solar System</title>
+  <meta name="description" content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path — built by Mithuna." />
 
-  <title>Three.js Solar System</title>
+  <meta property="og:title" content="Orbit — An Interactive Solar System" />
+  <meta property="og:description" content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/img/og-cover.png" />
+
+  <link rel="icon" href="/favicon.ico" />
 
   <style>
     * {
@@ -41,14 +45,11 @@
       width: 100%;
       padding: 50px;
       color: aliceblue;
-
-      /* Allows mouse interaction with Three.js canvas */
       pointer-events: none;
     }
 
     .content-section {
       min-height: 100vh;
-
       display: flex;
       justify-content: center;
       align-items: center;
@@ -57,21 +58,13 @@
     .card {
       width: 100%;
       max-width: 1200px;
-
       padding: 40px;
-
       text-align: center;
-
       background: rgba(235, 238, 240, 0.15);
-
       border: 1px solid rgba(255, 255, 255, 0.1);
-
       border-radius: 50px;
-
       backdrop-filter: blur(5px);
-
       font-family: "Courier New", Courier, monospace;
-
       font-style: italic;
     }
 
@@ -84,44 +77,212 @@
       font-size: 18px;
       font-weight: 500;
       line-height: 1.6;
-
       padding: 0 50px;
     }
 
+    /* ============ HERO ============ */
+
+    .hero-section {
+      text-align: center;
+    }
+
+    .hero-content {
+      pointer-events: none;
+    }
+
+    .hero-content .eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 18px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(48px, 9vw, 96px);
+      margin: 0 0 20px;
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: 2px;
+    }
+
+    .hero-content .tagline {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.75);
+      max-width: 560px;
+      margin: 0 auto 60px;
+      padding: 0;
+      font-style: normal;
+    }
+
+    .scroll-cue {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .scroll-cue .arrow {
+      width: 1px;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.7), transparent);
+      animation: scrollPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%   { transform: scaleY(0.4); opacity: 0.2; }
+      50%  { transform: scaleY(1);   opacity: 1;   }
+      100% { transform: scaleY(0.4); opacity: 0.2; }
+    }
+
+    /* ============ CTA ============ */
+
+    .cta-section {
+      text-align: center;
+    }
+
+    .cta-content {
+      pointer-events: none;
+    }
+
+    .cta-content h1 {
+      font-family: "Courier New", Courier, monospace;
+      font-size: clamp(32px, 6vw, 56px);
+    }
+
+    .cta-content .stack-line {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 36px;
+    }
+
+    .cta-links {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      pointer-events: auto;
+    }
+
+    .cta-links a {
+      pointer-events: auto;
+      color: aliceblue;
+      text-decoration: none;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      letter-spacing: 1px;
+      padding: 14px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .cta-links a:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ============ LOADER ============ */
+
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader-inner {
+      text-align: center;
+      font-family: "Courier New", Courier, monospace;
+      color: aliceblue;
+    }
+
+    .loader-text {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      opacity: 0.8;
+    }
+
+    .loader-bar {
+      width: 220px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 0 auto 10px;
+      overflow: hidden;
+    }
+
+    .loader-progress {
+      width: 0%;
+      height: 100%;
+      background: aliceblue;
+      transition: width 0.2s ease;
+    }
+
+    .loader-percent {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
     @media (max-width: 768px) {
-      .container {
-        padding: 20px;
-      }
+      .container { padding: 20px; }
+      .card { padding: 25px 15px; border-radius: 25px; }
+      h1 { font-size: 30px; }
+      p { padding: 0; font-size: 16px; }
+    }
 
-      .card {
-        padding: 25px 15px;
-        border-radius: 25px;
-      }
-
-      h1 {
-        font-size: 30px;
-      }
-
-      p {
-        padding: 0;
-        font-size: 16px;
-      }
+    /* Respect reduced-motion preference: drop the scroll-cue pulse */
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-cue .arrow { animation: none; opacity: 0.5; }
+      html { scroll-behavior: auto; }
     }
   </style>
-  <script type="module" crossorigin src="/assets/index-DpYcQ7nm.js"></script>
+  <script type="module" crossorigin src="/assets/index-D8OzvvpU.js"></script>
 </head>
 
 <body>
 
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-text">Entering orbit…</div>
+      <div class="loader-bar"><div class="loader-progress" id="loader-progress"></div></div>
+      <div class="loader-percent" id="loader-percent">0%</div>
+    </div>
+  </div>
+
   <main class="container">
 
+    <!-- HERO -->
+    <section class="content-section hero-section">
+      <div class="hero-content reveal">
+        <div class="eyebrow">A Three.js Experiment</div>
+        <h1>Orbit</h1>
+        <p class="tagline">
+          A scroll-driven solar system — selective bloom, a live camera path,
+          and a nebula field, built from scratch with Three.js and GSAP.
+        </p>
+        <div class="scroll-cue">
+          <span>Scroll</span>
+          <span class="arrow"></span>
+        </div>
+      </div>
+    </section>
+
     <!-- INTRODUCTION -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>Introduction</h1>
-
         <p>
           A galaxy is a group of stars, clouds of gas, and dust
           particles that move together through the universe.
@@ -129,125 +290,106 @@
           They probably formed billions of years ago,
           soon after the universe began.
         </p>
-
         <p>
           The Sun, Earth, and the other planets of the solar
           system are part of the Milky Way galaxy.
           Most galaxies move through the universe as part
           of clusters, or groups of galaxies.
         </p>
-
       </div>
     </section>
 
-
     <!-- SIZE -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>Size</h1>
-
         <p>
           Even the smaller galaxies are made up of millions
           of stars. These galaxies may be 5,000 light-years
           across.
         </p>
-
         <p>
           The Milky Way is roughly 20 times larger than that.
           It includes hundreds of billions of stars.
           The largest galaxies contain trillions of stars.
         </p>
-
       </div>
     </section>
 
-
     <!-- SHAPE -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>Shape</h1>
-
         <p>
           Galaxies are divided into three main categories
           based on their shapes: spiral, elliptical,
           and irregular.
         </p>
-
         <p>
           Spiral galaxies look like pinwheels.
           They have a central disk and two or more curved
           arms winding outward.
         </p>
-
         <p>
           Unusually shaped galaxies are called irregular
           galaxies. Some appear to be the result of
           collisions between several galaxies.
         </p>
-
       </div>
     </section>
 
-
     <!-- SOLAR SYSTEM -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>Our Solar System</h1>
-
         <p>
           The solar system consists of the Sun and everything
           that travels around it, including planets,
           moons, asteroids, and comets.
         </p>
-
         <p>
           Earth travels around the Sun while the Moon
           travels around Earth.
         </p>
-
       </div>
     </section>
 
-
     <!-- EARTH -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>Earth</h1>
-
         <p>
           Earth is the third planet from the Sun and the
           only astronomical object known to support life.
         </p>
-
         <p>
           Earth completes one orbit around the Sun
           approximately every 365 days.
         </p>
-
       </div>
     </section>
 
-
     <!-- MOON -->
-
     <section class="content-section">
-      <div class="card">
-
+      <div class="card reveal">
         <h1>The Moon</h1>
-
         <p>
           The Moon is Earth's natural satellite.
           It orbits Earth while Earth travels around the Sun.
         </p>
+      </div>
+    </section>
 
+    <!-- CLOSING CTA -->
+    <section class="content-section cta-section">
+      <div class="cta-content reveal">
+        <h1>Built with Three.js + GSAP</h1>
+        <div class="stack-line">Selective Bloom · ScrollTrigger Camera · Custom Shaders</div>
+        <div class="cta-links">
+          <a href="https://github.com/MithunaVelmurugan/solar-system-threeJS" target="_blank" rel="noopener">View Source</a>
+          <a href="#" target="_blank" rel="noopener">More Work</a>
+          <a href="https://www.linkedin.com/in/mithuna13" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
       </div>
     </section>
 
