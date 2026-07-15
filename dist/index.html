@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Three.js Solar System</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      padding: 50px;
+      color: aliceblue;
+
+      /* Allows mouse interaction with Three.js canvas */
+      pointer-events: none;
+    }
+
+    .content-section {
+      min-height: 100vh;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1200px;
+
+      padding: 40px;
+
+      text-align: center;
+
+      background: rgba(235, 238, 240, 0.15);
+
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      border-radius: 50px;
+
+      backdrop-filter: blur(5px);
+
+      font-family: "Courier New", Courier, monospace;
+
+      font-style: italic;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 40px;
+    }
+
+    p {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.6;
+
+      padding: 0 50px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      .card {
+        padding: 25px 15px;
+        border-radius: 25px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      p {
+        padding: 0;
+        font-size: 16px;
+      }
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-DpYcQ7nm.js"></script>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <!-- INTRODUCTION -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>Introduction</h1>
+
+        <p>
+          A galaxy is a group of stars, clouds of gas, and dust
+          particles that move together through the universe.
+          There are billions of galaxies in the universe.
+          They probably formed billions of years ago,
+          soon after the universe began.
+        </p>
+
+        <p>
+          The Sun, Earth, and the other planets of the solar
+          system are part of the Milky Way galaxy.
+          Most galaxies move through the universe as part
+          of clusters, or groups of galaxies.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- SIZE -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>Size</h1>
+
+        <p>
+          Even the smaller galaxies are made up of millions
+          of stars. These galaxies may be 5,000 light-years
+          across.
+        </p>
+
+        <p>
+          The Milky Way is roughly 20 times larger than that.
+          It includes hundreds of billions of stars.
+          The largest galaxies contain trillions of stars.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- SHAPE -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>Shape</h1>
+
+        <p>
+          Galaxies are divided into three main categories
+          based on their shapes: spiral, elliptical,
+          and irregular.
+        </p>
+
+        <p>
+          Spiral galaxies look like pinwheels.
+          They have a central disk and two or more curved
+          arms winding outward.
+        </p>
+
+        <p>
+          Unusually shaped galaxies are called irregular
+          galaxies. Some appear to be the result of
+          collisions between several galaxies.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- SOLAR SYSTEM -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>Our Solar System</h1>
+
+        <p>
+          The solar system consists of the Sun and everything
+          that travels around it, including planets,
+          moons, asteroids, and comets.
+        </p>
+
+        <p>
+          Earth travels around the Sun while the Moon
+          travels around Earth.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- EARTH -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>Earth</h1>
+
+        <p>
+          Earth is the third planet from the Sun and the
+          only astronomical object known to support life.
+        </p>
+
+        <p>
+          Earth completes one orbit around the Sun
+          approximately every 365 days.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- MOON -->
+
+    <section class="content-section">
+      <div class="card">
+
+        <h1>The Moon</h1>
+
+        <p>
+          The Moon is Earth's natural satellite.
+          It orbits Earth while Earth travels around the Sun.
+        </p>
+
+      </div>
+    </section>
+
+  </main>
+
+
+</body>
+</html>
