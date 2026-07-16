@@ -164,7 +164,7 @@ const mercury = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0x9c9c96, roughness: 1, metalness: 0.05 })
 );
 scene.add(mercury);
-scene.add(createOrbitRing(mercuryOrbitRadius, 0.35));
+scene.add(createOrbitRing(mercuryOrbitRadius, 0.25));
 
 // ================================
 // VENUS
@@ -176,7 +176,7 @@ const venus = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xd9a066, roughness: 0.9, metalness: 0.05 })
 );
 scene.add(venus);
-scene.add(createOrbitRing(venusOrbitRadius, 0.35));
+scene.add(createOrbitRing(venusOrbitRadius, 0.25));
 
 // ================================
 // EARTH + ATMOSPHERE
@@ -190,7 +190,7 @@ const earth = new THREE.Mesh(
 );
 earth.rotation.z = THREE.MathUtils.degToRad(23.4);
 scene.add(earth);
-scene.add(createOrbitRing(earthOrbitRadius, 0.35));
+scene.add(createOrbitRing(earthOrbitRadius, 0.25));
 
 const atmosphere = new THREE.Mesh(
   new THREE.SphereGeometry(5.35, 64, 64),
@@ -230,7 +230,7 @@ const moon = new THREE.Mesh(
 scene.add(moon);
 
 const moonOrbitRadius = 9;
-earth.add(createOrbitRing(moonOrbitRadius, 0.35, 0x8899bb));
+earth.add(createOrbitRing(moonOrbitRadius, 0.25, 0x8899bb));
 
 // ================================
 // MARS
@@ -242,7 +242,7 @@ const mars = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xb5533c, roughness: 1 })
 );
 scene.add(mars);
-scene.add(createOrbitRing(marsOrbitRadius, 0.35));
+scene.add(createOrbitRing(marsOrbitRadius, 0.25));
 
 // ================================
 // ASTEROID BELT
@@ -298,7 +298,7 @@ const jupiter = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xd8b98f, roughness: 0.8, metalness: 0.05 })
 );
 scene.add(jupiter);
-scene.add(createOrbitRing(jupiterOrbitRadius, 0.35));
+scene.add(createOrbitRing(jupiterOrbitRadius, 0.25));
 
 // ================================
 // SATURN + RINGS
@@ -310,7 +310,7 @@ const saturn = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xe0c28f, roughness: 0.8 })
 );
 scene.add(saturn);
-scene.add(createOrbitRing(saturnOrbitRadius, 0.35));
+scene.add(createOrbitRing(saturnOrbitRadius, 0.25));
 
 const saturnRing = new THREE.Mesh(
   new THREE.RingGeometry(8.5, 13, 64),
@@ -331,7 +331,7 @@ const uranus = new THREE.Mesh(
 );
 uranus.rotation.z = THREE.MathUtils.degToRad(97.8);
 scene.add(uranus);
-scene.add(createOrbitRing(uranusOrbitRadius, 0.35));
+scene.add(createOrbitRing(uranusOrbitRadius, 0.25));
 
 // ================================
 // NEPTUNE
@@ -343,7 +343,7 @@ const neptune = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0x3d5ef0, roughness: 0.7, metalness: 0.05 })
 );
 scene.add(neptune);
-scene.add(createOrbitRing(neptuneOrbitRadius, 0.35));
+scene.add(createOrbitRing(neptuneOrbitRadius, 0.25));
 
 // ================================
 // STARS
