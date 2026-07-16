@@ -65,6 +65,37 @@ pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
 
 // ================================
+// HERO INTRO (plays once, on load — not scroll-triggered)
+// The hero is already fully visible the instant the page loads, so a
+// "scroll into view" trigger doesn't apply to it the way it does to the
+// cards further down. Instead it gets a one-time staggered entrance:
+// eyebrow, then heading, then tagline, then the scroll cue, each
+// overlapping slightly for a natural cascade rather than a hard sequence.
+// ================================
+
+function playHeroIntro() {
+  const eyebrow = document.querySelector(".hero-content .eyebrow");
+  const heading = document.querySelector(".hero-content h1");
+  const tagline = document.querySelector(".hero-content .tagline");
+  const cue = document.querySelector(".hero-content .scroll-cue");
+  const targets = [eyebrow, heading, tagline, cue].filter(Boolean);
+  if (!targets.length) return;
+
+  if (prefersReducedMotion) {
+    gsap.set(targets, { opacity: 1, y: 0 });
+    return;
+  }
+
+  gsap.set(targets, { opacity: 0, y: 30 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.7 });
+  if (heading) tl.to(heading, { opacity: 1, y: 0, duration: 0.9 }, "-=0.45");
+  if (tagline) tl.to(tagline, { opacity: 1, y: 0, duration: 0.8 }, "-=0.5");
+  if (cue) tl.to(cue, { opacity: 1, y: 0, duration: 0.6 }, "-=0.4");
+}
+
+// ================================
 // LOADING MANAGER (drives the #loader overlay in index.html)
 // ================================
 
@@ -88,6 +119,7 @@ loadingManager.onLoad = () => {
       onComplete: () => loader.remove(),
     });
   }
+  playHeroIntro();
   ScrollTrigger.refresh();
 };
 
@@ -636,58 +668,45 @@ window.addEventListener("pointermove", (e) => {
 
 // ================================
 // SCROLL-SYNCED CARD REVEAL
+// One GSAP timeline per card (was three separate ScrollTriggers doing
+// almost the same job) — card fades/rises in, then its eyebrow, heading,
+// and paragraphs stagger in right behind it. ".hero-content" is skipped
+// here on purpose: it gets its own one-time load-in animation below
+// instead of a scroll trigger, since it's already on screen at load with
+// nothing to "scroll into view" from.
 // ================================
 
-document.querySelectorAll(".reveal").forEach((card) => {
-  gsap.fromTo(
-    card,
-    { opacity: 0, y: 60 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: card,
-        start: "top 88%",
-        toggleActions: "play none none reverse",
-      },
-    }
-  );
-
+document.querySelectorAll(".reveal:not(.hero-content)").forEach((card) => {
+  const eyebrow = card.querySelector(".planet-eyebrow");
   const heading = card.querySelector("h1");
   const paragraphs = card.querySelectorAll("p");
+  const stackLine = card.querySelector(".stack-line");
+  const ctaLinks = card.querySelector(".cta-links");
 
-  if (heading) {
-    gsap.fromTo(
-      heading,
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        delay: 0.1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
-      }
-    );
-  }
+  if (prefersReducedMotion) return; // element is already visible, nothing to animate
 
-  if (paragraphs.length) {
-    gsap.fromTo(
-      paragraphs,
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.12,
-        delay: 0.25,
-        ease: "power3.out",
-        scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
-      }
-    );
-  }
+  gsap.set(card, { opacity: 0, y: 60 });
+  if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 16 });
+  if (heading) gsap.set(heading, { opacity: 0, y: 22 });
+  if (paragraphs.length) gsap.set(paragraphs, { opacity: 0, y: 22 });
+  if (stackLine) gsap.set(stackLine, { opacity: 0, y: 16 });
+  if (ctaLinks) gsap.set(ctaLinks, { opacity: 0, y: 16 });
+
+  const tl = gsap.timeline({
+    defaults: { ease: "power3.out" },
+    scrollTrigger: {
+      trigger: card,
+      start: "top 85%",
+      toggleActions: "play none none reverse",
+    },
+  });
+
+  tl.to(card, { opacity: 1, y: 0, duration: 0.9 });
+  if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.5 }, "-=0.6");
+  if (heading) tl.to(heading, { opacity: 1, y: 0, duration: 0.7 }, "-=0.45");
+  if (paragraphs.length) tl.to(paragraphs, { opacity: 1, y: 0, duration: 0.7, stagger: 0.12 }, "-=0.4");
+  if (stackLine) tl.to(stackLine, { opacity: 1, y: 0, duration: 0.5 }, "-=0.35");
+  if (ctaLinks) tl.to(ctaLinks, { opacity: 1, y: 0, duration: 0.5 }, "-=0.3");
 });
 
 window.addEventListener("load", () => ScrollTrigger.refresh());

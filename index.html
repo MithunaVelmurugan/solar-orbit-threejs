@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Orbit — An Interactive Solar System</title>
-  <meta name="description" content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path — built by Mithuna." />
+  <meta name="description"
+    content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path — built by Mithuna." />
 
   <meta property="og:title" content="Orbit — An Interactive Solar System" />
-  <meta property="og:description" content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path." />
+  <meta property="og:description"
+    content="A scroll-driven Three.js solar system with selective bloom, nebula backdrop, and a custom camera path." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/img/og-cover.png" />
 
   <link rel="icon" href="/favicon.ico" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Bitcount:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jim+Nightshade&family=Monsieur+La+Doulaise&family=Rye&display=swap"
+    rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
     }
 
     html {
-      scroll-behavior: auto; /* Lenis handles smoothing now — don't stack this on top */
+      scroll-behavior: auto;
+      /* Lenis handles smoothing now — don't stack this on top */
     }
 
     body {
@@ -37,6 +46,13 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+    }
+
+    .orbit {
+      background-image: linear-gradient(to bottom, #ffffff, #231b66);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
     .container {
@@ -64,8 +80,8 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 50px;
       backdrop-filter: blur(5px);
-      font-family: "Courier New", Courier, monospace;
-      font-style: italic;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
+
     }
 
     h1 {
@@ -81,7 +97,7 @@
     }
 
     .planet-eyebrow {
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       letter-spacing: 3px;
       text-transform: uppercase;
       font-size: 12px;
@@ -101,7 +117,7 @@
     }
 
     .hero-content .eyebrow {
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       letter-spacing: 4px;
       text-transform: uppercase;
       font-size: 13px;
@@ -112,7 +128,7 @@
     .hero-content h1 {
       font-size: clamp(48px, 9vw, 96px);
       margin: 0 0 20px;
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       letter-spacing: 2px;
     }
 
@@ -130,7 +146,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       font-size: 12px;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -140,14 +156,25 @@
     .scroll-cue .arrow {
       width: 1px;
       height: 28px;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.7), transparent);
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
       animation: scrollPulse 1.8s ease-in-out infinite;
     }
 
     @keyframes scrollPulse {
-      0%   { transform: scaleY(0.4); opacity: 0.2; }
-      50%  { transform: scaleY(1);   opacity: 1;   }
-      100% { transform: scaleY(0.4); opacity: 0.2; }
+      0% {
+        transform: scaleY(0.4);
+        opacity: 0.2;
+      }
+
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scaleY(0.4);
+        opacity: 0.2;
+      }
     }
 
     /* ============ CTA ============ */
@@ -161,7 +188,7 @@
     }
 
     .cta-content h1 {
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       font-size: clamp(32px, 6vw, 56px);
     }
 
@@ -185,7 +212,7 @@
       pointer-events: auto;
       color: aliceblue;
       text-decoration: none;
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       font-size: 14px;
       letter-spacing: 1px;
       padding: 14px 28px;
@@ -213,7 +240,7 @@
 
     .loader-inner {
       text-align: center;
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Jim Nightshade", "Courier New", Courier, monospace;
       color: aliceblue;
     }
 
@@ -246,16 +273,35 @@
     }
 
     @media (max-width: 768px) {
-      .container { padding: 20px; }
-      .card { padding: 25px 15px; border-radius: 25px; }
-      h1 { font-size: 30px; }
-      p { padding: 0; font-size: 16px; }
+      .container {
+        padding: 20px;
+      }
+
+      .card {
+        padding: 25px 15px;
+        border-radius: 25px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      p {
+        padding: 0;
+        font-size: 16px;
+      }
     }
 
     /* Respect reduced-motion preference: drop the scroll-cue pulse */
     @media (prefers-reduced-motion: reduce) {
-      .scroll-cue .arrow { animation: none; opacity: 0.5; }
-      html { scroll-behavior: auto; }
+      .scroll-cue .arrow {
+        animation: none;
+        opacity: 0.5;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
     }
   </style>
 </head>
@@ -265,7 +311,9 @@
   <div id="loader">
     <div class="loader-inner">
       <div class="loader-text">Entering orbit…</div>
-      <div class="loader-bar"><div class="loader-progress" id="loader-progress"></div></div>
+      <div class="loader-bar">
+        <div class="loader-progress" id="loader-progress"></div>
+      </div>
       <div class="loader-percent" id="loader-percent">0%</div>
     </div>
   </div>
@@ -274,9 +322,9 @@
 
     <!-- 1. HERO -->
     <section class="content-section hero-section">
-      <div class="hero-content reveal">
+      <div class="hero-content">
         <div class="eyebrow">A Three.js Experiment</div>
-        <h1>Orbit</h1>
+        <h1 class="orbit">Orbit</h1>
         <p class="tagline">
           A scroll-driven solar system — selective bloom, a live camera path,
           and a nebula field, built from scratch with Three.js and GSAP.
@@ -517,7 +565,8 @@
         <h1>Built with Three.js + GSAP</h1>
         <div class="stack-line">Selective Bloom · ScrollTrigger Camera · Custom Shaders</div>
         <div class="cta-links">
-          <a href="https://github.com/MithunaVelmurugan/solar-orbit-threejs" target="_blank" rel="noopener">View Source</a>
+          <a href="https://github.com/MithunaVelmurugan/solar-orbit-threejs" target="_blank" rel="noopener">View
+            Source</a>
           <a href="#" target="_blank" rel="noopener">More Work</a>
           <a href="https://www.linkedin.com/in/mithuna13" target="_blank" rel="noopener">LinkedIn</a>
         </div>
@@ -529,4 +578,5 @@
   <script type="module" src="/script.js"></script>
 
 </body>
+
 </html>
