@@ -22,6 +22,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Bitcount:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jim+Nightshade&family=Monsieur+La+Doulaise&family=Rye&display=swap"
     rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
@@ -29,7 +30,6 @@
 
     html {
       scroll-behavior: auto;
-      /* Lenis handles smoothing now — don't stack this on top */
     }
 
     body {
@@ -48,13 +48,6 @@
       z-index: 0;
     }
 
-    .orbit {
-      background-image: linear-gradient(to bottom, #ffffff, #ffffff);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
     .container {
       position: relative;
       z-index: 1;
@@ -62,6 +55,8 @@
       padding: 50px;
       color: aliceblue;
       pointer-events: none;
+    
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .content-section {
@@ -76,12 +71,12 @@
       max-width: 1200px;
       padding: 40px;
       text-align: center;
-      background: rgba(235, 238, 240, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(157, 158, 165, 0.288);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       border-radius: 50px;
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(20px) saturate(120%);
       font-family: "Jim Nightshade", "Courier New", Courier, monospace;
-
+      font-style: italic;
     }
 
     h1 {
@@ -324,7 +319,7 @@
     <section class="content-section hero-section">
       <div class="hero-content">
         <div class="eyebrow">A Three.js Experiment</div>
-        <h1 class="orbit">Orbit</h1>
+        <h1>Orbit</h1>
         <p class="tagline">
           A scroll-driven solar system — selective bloom, a live camera path,
           and a nebula field, built from scratch with Three.js and GSAP.
