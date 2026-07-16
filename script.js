@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -8,13 +9,15 @@ import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // ================================
 // SCENE
 // ================================
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
-scene.fog = new THREE.Fog(0x05040a, 120, 520);
+scene.fog = new THREE.Fog(0x05040a, 120, 620);
 
 // ================================
 // CAMERA
@@ -57,13 +60,9 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0x223355, 0.6);
 scene.add(ambientLight);
 
-const pointLight = new THREE.PointLight(0xffffff, 1200, 700, 1.5);
+const pointLight = new THREE.PointLight(0xffffff, 1200, 900, 1.5);
 pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
-
-// ================================
-// TEXTURE LOADER
-// ================================
 
 // ================================
 // LOADING MANAGER (drives the #loader overlay in index.html)
@@ -109,18 +108,31 @@ scene.add(sun);
 
 // ================================
 // ORBIT RING HELPER
+// Brighter + more opaque than before so orbit paths read clearly at a glance.
 // ================================
 
-function createOrbitRing(radius, opacity = 0.5) {
+function createOrbitRing(radius, opacity = 0.85, color = 0x9fb4d9) {
   const points = [];
-  for (let i = 0; i <= 128; i++) {
-    const angle = (i / 128) * Math.PI * 2;
+  for (let i = 0; i <= 160; i++) {
+    const angle = (i / 160) * Math.PI * 2;
     points.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
   }
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  const material = new THREE.LineBasicMaterial({ color: 0x444444, transparent: true, opacity });
+  const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
   return new THREE.Line(geometry, material);
 }
+
+// ================================
+// MERCURY
+// ================================
+
+const mercuryOrbitRadius = 18;
+const mercury = new THREE.Mesh(
+  new THREE.SphereGeometry(2, 48, 48),
+  new THREE.MeshStandardMaterial({ color: 0x9c9c96, roughness: 1, metalness: 0.05 })
+);
+scene.add(mercury);
+scene.add(createOrbitRing(mercuryOrbitRadius, 0.6));
 
 // ================================
 // VENUS
@@ -132,7 +144,7 @@ const venus = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xd9a066, roughness: 0.9, metalness: 0.05 })
 );
 scene.add(venus);
-scene.add(createOrbitRing(venusOrbitRadius, 0.3));
+scene.add(createOrbitRing(venusOrbitRadius, 0.7));
 
 // ================================
 // EARTH + ATMOSPHERE
@@ -146,7 +158,7 @@ const earth = new THREE.Mesh(
 );
 earth.rotation.z = THREE.MathUtils.degToRad(23.4);
 scene.add(earth);
-scene.add(createOrbitRing(earthOrbitRadius, 0.5));
+scene.add(createOrbitRing(earthOrbitRadius, 0.85));
 
 const atmosphere = new THREE.Mesh(
   new THREE.SphereGeometry(5.35, 64, 64),
@@ -174,6 +186,8 @@ earth.add(atmosphere);
 
 // ================================
 // MOON
+// The orbit ring is added as a child of Earth so it travels with the
+// planet instead of staying pinned to world-space origin.
 // ================================
 
 const moonTexture = textureLoader.load("/img/m.jpg");
@@ -184,6 +198,7 @@ const moon = new THREE.Mesh(
 scene.add(moon);
 
 const moonOrbitRadius = 9;
+earth.add(createOrbitRing(moonOrbitRadius, 0.5, 0x8899bb));
 
 // ================================
 // MARS
@@ -195,7 +210,7 @@ const mars = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ color: 0xb5533c, roughness: 1 })
 );
 scene.add(mars);
-scene.add(createOrbitRing(marsOrbitRadius, 0.3));
+scene.add(createOrbitRing(marsOrbitRadius, 0.7));
 
 // ================================
 // ASTEROID BELT
@@ -220,13 +235,16 @@ for (let i = 0; i < asteroidCount; i++) {
     y: THREE.MathUtils.randFloatSpread(3),
     scale: THREE.MathUtils.randFloat(0.3, 1.2),
     spin: THREE.MathUtils.randFloat(0.5, 2),
+    // was previously read but never set — that made the idle drift term
+    // resolve to NaN and effectively freeze the belt when not scrolling.
+    idleFactor: THREE.MathUtils.randFloat(0.5, 1.5),
   });
 }
 
-function updateAsteroidBelt(p) {
+function updateAsteroidBelt(p, idleTime) {
   for (let i = 0; i < asteroidCount; i++) {
     const a = asteroidData[i];
-    const angle = a.startAngle + p * Math.PI * 2 * a.revolutions;
+    const angle = a.startAngle + p * Math.PI * 2 * a.revolutions + idleTime * IDLE.asteroidBase * a.idleFactor;
 
     dummy.position.set(Math.cos(angle) * a.radius, a.y, Math.sin(angle) * a.radius);
     dummy.rotation.set(angle * a.spin, angle * a.spin * 0.6, 0);
@@ -239,16 +257,28 @@ function updateAsteroidBelt(p) {
 }
 
 // ================================
+// JUPITER
+// ================================
+
+const jupiterOrbitRadius = 100;
+const jupiter = new THREE.Mesh(
+  new THREE.SphereGeometry(9, 64, 64),
+  new THREE.MeshStandardMaterial({ color: 0xd8b98f, roughness: 0.8, metalness: 0.05 })
+);
+scene.add(jupiter);
+scene.add(createOrbitRing(jupiterOrbitRadius, 0.5));
+
+// ================================
 // SATURN + RINGS
 // ================================
 
-const saturnOrbitRadius = 96;
+const saturnOrbitRadius = 130;
 const saturn = new THREE.Mesh(
   new THREE.SphereGeometry(6, 48, 48),
   new THREE.MeshStandardMaterial({ color: 0xe0c28f, roughness: 0.8 })
 );
 scene.add(saturn);
-scene.add(createOrbitRing(saturnOrbitRadius, 0.25));
+scene.add(createOrbitRing(saturnOrbitRadius, 0.45));
 
 const saturnRing = new THREE.Mesh(
   new THREE.RingGeometry(8.5, 13, 64),
@@ -258,15 +288,41 @@ saturnRing.rotation.x = THREE.MathUtils.degToRad(75);
 saturn.add(saturnRing);
 
 // ================================
+// URANUS
+// Tilted almost onto its side, like the real planet.
+// ================================
+
+const uranusOrbitRadius = 155;
+const uranus = new THREE.Mesh(
+  new THREE.SphereGeometry(5, 48, 48),
+  new THREE.MeshStandardMaterial({ color: 0xace5ee, roughness: 0.6, metalness: 0.05 })
+);
+uranus.rotation.z = THREE.MathUtils.degToRad(97.8);
+scene.add(uranus);
+scene.add(createOrbitRing(uranusOrbitRadius, 0.4));
+
+// ================================
+// NEPTUNE
+// ================================
+
+const neptuneOrbitRadius = 175;
+const neptune = new THREE.Mesh(
+  new THREE.SphereGeometry(4.8, 48, 48),
+  new THREE.MeshStandardMaterial({ color: 0x3d5ef0, roughness: 0.7, metalness: 0.05 })
+);
+scene.add(neptune);
+scene.add(createOrbitRing(neptuneOrbitRadius, 0.4));
+
+// ================================
 // STARS
 // ================================
 
 const starCount = 2500;
 const starPositions = new Float32Array(starCount * 3);
 for (let i = 0; i < starCount * 3; i += 3) {
-  starPositions[i] = THREE.MathUtils.randFloatSpread(700);
-  starPositions[i + 1] = THREE.MathUtils.randFloatSpread(700);
-  starPositions[i + 2] = THREE.MathUtils.randFloatSpread(700);
+  starPositions[i] = THREE.MathUtils.randFloatSpread(800);
+  starPositions[i + 1] = THREE.MathUtils.randFloatSpread(800);
+  starPositions[i + 2] = THREE.MathUtils.randFloatSpread(800);
 }
 const starGeometry = new THREE.BufferGeometry();
 starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
@@ -313,7 +369,7 @@ nebulaColorSets.forEach((stops, i) => {
   const scale = THREE.MathUtils.randFloat(450, 750);
   sprite.scale.set(scale, scale, 1);
   const angle = (i / nebulaColorSets.length) * Math.PI * 2 + Math.random();
-  const dist = THREE.MathUtils.randFloat(360, 560);
+  const dist = THREE.MathUtils.randFloat(360, 620);
   sprite.position.set(Math.cos(angle) * dist, THREE.MathUtils.randFloatSpread(160), Math.sin(angle) * dist);
   nebulaGroup.add(sprite);
 });
@@ -321,8 +377,6 @@ scene.add(nebulaGroup);
 
 // ================================
 // SHOOTING STARS / COMETS
-// position + opacity are a pure function of scroll progress — they only
-// move while you scroll, and hold still the instant you stop.
 // ================================
 
 function makeComet(repeatCount, offset) {
@@ -421,20 +475,73 @@ function renderWithSelectiveBloom() {
 
 // ================================
 // SCROLL-DRIVEN CAMERA + MOOD
+// One stage per content-section in index.html — 15 total. Keep both
+// files in sync if you add/remove a section.
 // ================================
 
 const stages = [
-  // Hero — wide establishing shot
+  // 1. Hero — wide establishing shot
   { offset: new THREE.Vector3(0, 40, 180), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x101025), fog: new THREE.Color(0x030308) },
+  // 2. Introduction (galaxy)
   { offset: new THREE.Vector3(0, 20, 120), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x223355), fog: new THREE.Color(0x05040a) },
+  // 3. Size
   { offset: new THREE.Vector3(0, 70, 240), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x2a1a4a), fog: new THREE.Color(0x0a0518) },
+  // 4. Shape
   { offset: new THREE.Vector3(90, 45, 90), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x1a3a46), fog: new THREE.Color(0x04100f) },
-  { offset: new THREE.Vector3(0, 20, 120), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x33303a), fog: new THREE.Color(0x0a0a10) },
+  // 5. Our Solar System — overview. Kept closer than Shape's wide shot so
+  // the move into Mercury is one continuous zoom-in, not a zoom-out then
+  // a hard zoom-in (which read as the camera going "front and back").
+  { offset: new THREE.Vector3(0, 55, 150), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x33303a), fog: new THREE.Color(0x0a0a10) },
+  // 6. Mercury
+  { offset: new THREE.Vector3(0, 1.5, 10), getTarget: () => mercury.position.clone(), ambient: new THREE.Color(0x3a352e), fog: new THREE.Color(0x0c0a08) },
+  // 7. Venus
+  { offset: new THREE.Vector3(0, 2, 15), getTarget: () => venus.position.clone(), ambient: new THREE.Color(0x4a3a20), fog: new THREE.Color(0x120e08) },
+  // 8. Earth
   { offset: new THREE.Vector3(0, 3, 16), getTarget: () => earth.position.clone(), ambient: new THREE.Color(0x0d4f5f), fog: new THREE.Color(0x021015) },
+  // 9. Moon
   { offset: new THREE.Vector3(0, 2, 7), getTarget: () => moon.position.clone(), ambient: new THREE.Color(0x2a2a3e), fog: new THREE.Color(0x08080f) },
-  // Closing CTA — pull all the way back to reveal the full system
-  { offset: new THREE.Vector3(0, 120, 320), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x15152f), fog: new THREE.Color(0x03030a) },
+  // 10. Mars
+  { offset: new THREE.Vector3(0, 2.5, 13), getTarget: () => mars.position.clone(), ambient: new THREE.Color(0x4a2018), fog: new THREE.Color(0x0f0503) },
+  // 11. Jupiter
+  { offset: new THREE.Vector3(0, 6, 42), getTarget: () => jupiter.position.clone(), ambient: new THREE.Color(0x4a3a24), fog: new THREE.Color(0x0f0a05) },
+  // 12. Saturn
+  { offset: new THREE.Vector3(0, 7, 40), getTarget: () => saturn.position.clone(), ambient: new THREE.Color(0x4a4020), fog: new THREE.Color(0x0f0d05) },
+  // 13. Uranus
+  { offset: new THREE.Vector3(0, 4, 28), getTarget: () => uranus.position.clone(), ambient: new THREE.Color(0x1e4a4c), fog: new THREE.Color(0x051010) },
+  // 14. Neptune
+  { offset: new THREE.Vector3(0, 4, 26), getTarget: () => neptune.position.clone(), ambient: new THREE.Color(0x14245a), fog: new THREE.Color(0x030614) },
+  // 15. Closing CTA — pull all the way back to reveal the full system
+  { offset: new THREE.Vector3(0, 140, 380), getTarget: () => new THREE.Vector3(0, 0, 0), ambient: new THREE.Color(0x15152f), fog: new THREE.Color(0x03030a) },
 ];
+
+// ================================
+// SMOOTH SCROLL (Lenis)
+// This is what actually smooths the scroll feel itself — everything
+// above only smoothed how the camera reacted to scroll. Without this,
+// raw wheel/trackpad ticks drive scrollTop directly and every animation
+// riding on it inherits that choppiness, no matter how eased the camera
+// math is downstream.
+// Skipped for prefers-reduced-motion: forcing inertia on a user who's
+// asked for less motion would work against their preference.
+// ================================
+
+let lenis = null;
+if (!prefersReducedMotion) {
+  lenis = new Lenis({
+    duration: 1.1,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+  });
+
+  lenis.on("scroll", ScrollTrigger.update);
+
+  gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+  });
+  // Let Lenis own the easing curve; GSAP's own frame-skip compensation
+  // would otherwise fight it under load.
+  gsap.ticker.lagSmoothing(0);
+}
 
 const scrollState = { progress: 0 };
 
@@ -442,7 +549,11 @@ ScrollTrigger.create({
   trigger: document.body,
   start: "top top",
   end: "bottom bottom",
-  scrub: 1,
+  // Lenis is now the single place scroll input gets smoothed, so this
+  // tracks it directly with no extra tween lag on top — stacking a scrub
+  // duration here again would just reintroduce the overshoot we already
+  // fixed once (see the "front and back" fix above).
+  scrub: true,
   onUpdate: (self) => {
     scrollState.progress = self.progress;
   },
@@ -453,23 +564,54 @@ const desiredTarget = new THREE.Vector3();
 const blendedAmbient = new THREE.Color();
 const blendedFog = new THREE.Color();
 
+// Smoothstep: eases speed down to zero at each stage waypoint and back up
+// as it leaves. Without this the camera moved at constant speed straight
+// through every stage, so planets never got a "held" moment on screen —
+// it just swept past. This gives each one real dwell time.
+function easeInOut(t) {
+  return t * t * (3 - 2 * t);
+}
+
 function getScrollBlend(p) {
-  const t = p * (stages.length - 1);
+  const clamped = THREE.MathUtils.clamp(p, 0, 1);
+  const t = clamped * (stages.length - 1);
   const i = Math.min(Math.floor(t), stages.length - 2);
-  const frac = t - i;
+  const rawFrac = t - i;
+  const frac = easeInOut(rawFrac);
   return { a: stages[i], b: stages[i + 1], frac };
 }
+
+// Radial blend: interpolate distance and direction separately instead of
+// straight-line vector lerp. A straight line between two offset vectors
+// can pass closer to (or farther from) the target than either endpoint,
+// which is what produced the "zooms in and out" wobble. Lerping distance
+// as a plain scalar guarantees it moves in one direction only.
+const dirA = new THREE.Vector3();
+const dirB = new THREE.Vector3();
+const blendedDir = new THREE.Vector3();
+function blendOffset(a, b, frac, out) {
+  const distA = a.length();
+  const distB = b.length();
+  const dist = THREE.MathUtils.lerp(distA, distB, frac);
+  dirA.copy(a).normalize();
+  dirB.copy(b).normalize();
+  blendedDir.copy(dirA).lerp(dirB, frac);
+  if (blendedDir.lengthSq() < 1e-6) blendedDir.set(0, 0, 1);
+  blendedDir.normalize();
+  return out.copy(blendedDir).multiplyScalar(dist);
+}
+
+const blendedOffset = new THREE.Vector3();
 
 function updateScrollCamera(blend) {
   const { a, b, frac } = blend;
   desiredTarget.copy(a.getTarget()).lerp(b.getTarget(), frac);
-  const offset = a.offset.clone().lerp(b.offset, frac);
+  const offset = blendOffset(a.offset, b.offset, frac, blendedOffset);
   desiredCamPos.copy(desiredTarget).add(offset);
   if (prefersReducedMotion) {
     camera.position.copy(desiredCamPos);
   } else {
-    // gentle easing toward the scroll-derived position, not independent motion
-    camera.position.lerp(desiredCamPos, 0.12);
+    camera.position.lerp(desiredCamPos, 0.16);
   }
   camera.lookAt(desiredTarget);
 }
@@ -492,13 +634,8 @@ window.addEventListener("pointermove", (e) => {
   mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
 });
 
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 // ================================
 // SCROLL-SYNCED CARD REVEAL
-// fromTo + toggleActions correctly handles content that's already in the
-// viewport on first load (the old onEnter-callback approach didn't fire
-// retroactively, which is why some cards stayed invisible).
 // ================================
 
 document.querySelectorAll(".reveal").forEach((card) => {
@@ -553,77 +690,118 @@ document.querySelectorAll(".reveal").forEach((card) => {
   }
 });
 
-// Recalculate trigger positions once everything (fonts/images) has settled
 window.addEventListener("load", () => ScrollTrigger.refresh());
 
 // ================================
 // SCROLL-DRIVEN SCENE MOTION
-// Every orbit/spin below is a direct function of scroll progress `p`,
-// not of elapsed time — nothing moves unless the user scrolls.
+// Every orbit/spin is p (scroll progress) PLUS a slow idleTime-based drift,
+// so planets keep gently orbiting even when the user isn't scrolling.
 // ================================
 
+const mercuryStartAngle = 5.0;
 const venusStartAngle = 0.4;
 const earthStartAngle = 0;
 const moonStartAngle = 1.1;
 const marsStartAngle = 2.6;
+const jupiterStartAngle = 1.7;
 const saturnStartAngle = 4.2;
+const uranusStartAngle = 3.1;
+const neptuneStartAngle = 0.9;
 
-function updateOrbits(p) {
-  sun.rotation.y = p * Math.PI * 2 * 0.6;
+// Idle drift rates (radians/sec), layered on top of the scroll-driven angle.
+const IDLE = {
+  sunSpin: 0.05,
+  mercuryOrbit: 0.09,
+  mercurySpin: 0.05,
+  venusOrbit: 0.06,
+  venusSpin: 0.04,
+  earthOrbit: 0.04,
+  earthSpin: 0.08,
+  moonOrbit: 0.15,
+  moonSpin: 0.05,
+  marsOrbit: 0.025,
+  marsSpin: 0.06,
+  jupiterOrbit: 0.015,
+  jupiterSpin: 0.09,
+  saturnOrbit: 0.012,
+  saturnSpin: 0.05,
+  uranusOrbit: 0.008,
+  uranusSpin: 0.04,
+  neptuneOrbit: 0.006,
+  neptuneSpin: 0.04,
+  nebula: 0.01,
+  asteroidBase: 0.015,
+};
 
-  const venusAngle = venusStartAngle + p * Math.PI * 2 * 1.2;
+function updateOrbits(p, idleTime) {
+  sun.rotation.y = p * Math.PI * 2 * 0.6 + idleTime * IDLE.sunSpin;
+
+  const mercuryAngle = mercuryStartAngle + p * Math.PI * 2 * 2.0 + idleTime * IDLE.mercuryOrbit;
+  mercury.position.set(Math.cos(mercuryAngle) * mercuryOrbitRadius, 0, Math.sin(mercuryAngle) * mercuryOrbitRadius);
+  mercury.rotation.y = p * Math.PI * 2 * 0.6 + idleTime * IDLE.mercurySpin;
+
+  const venusAngle = venusStartAngle + p * Math.PI * 2 * 1.2 + idleTime * IDLE.venusOrbit;
   venus.position.set(Math.cos(venusAngle) * venusOrbitRadius, 0, Math.sin(venusAngle) * venusOrbitRadius);
-  venus.rotation.y = p * Math.PI * 2 * 0.8;
+  venus.rotation.y = p * Math.PI * 2 * 0.8 + idleTime * IDLE.venusSpin;
 
-  const earthAngle = earthStartAngle + p * Math.PI * 2 * 1.0;
+  const earthAngle = earthStartAngle + p * Math.PI * 2 * 1.0 + idleTime * IDLE.earthOrbit;
   earth.position.set(Math.cos(earthAngle) * earthOrbitRadius, 0, Math.sin(earthAngle) * earthOrbitRadius);
-  earth.rotation.y = p * Math.PI * 2 * 2.0;
+  earth.rotation.y = p * Math.PI * 2 * 2.0 + idleTime * IDLE.earthSpin;
 
-  // Kept deliberately slow — this is the body the camera ends up parked
-  // closest to, so a high multiplier here reads as a glitch rather than motion.
-  const moonAngle = moonStartAngle + p * Math.PI * 2 * 1.8;
+  const moonAngle = moonStartAngle + p * Math.PI * 2 * 1.8 + idleTime * IDLE.moonOrbit;
   moon.position.set(
     earth.position.x + Math.cos(moonAngle) * moonOrbitRadius,
     Math.sin(moonAngle) * 2,
     earth.position.z + Math.sin(moonAngle) * moonOrbitRadius
   );
-  moon.rotation.y = p * Math.PI * 2 * 1.0;
+  moon.rotation.y = p * Math.PI * 2 * 1.0 + idleTime * IDLE.moonSpin;
 
-  const marsAngle = marsStartAngle + p * Math.PI * 2 * 0.5;
+  const marsAngle = marsStartAngle + p * Math.PI * 2 * 0.5 + idleTime * IDLE.marsOrbit;
   mars.position.set(Math.cos(marsAngle) * marsOrbitRadius, 0, Math.sin(marsAngle) * marsOrbitRadius);
-  mars.rotation.y = p * Math.PI * 2 * 1.5;
+  mars.rotation.y = p * Math.PI * 2 * 1.5 + idleTime * IDLE.marsSpin;
 
-  const saturnAngle = saturnStartAngle + p * Math.PI * 2 * 0.22;
+  const jupiterAngle = jupiterStartAngle + p * Math.PI * 2 * 0.32 + idleTime * IDLE.jupiterOrbit;
+  jupiter.position.set(Math.cos(jupiterAngle) * jupiterOrbitRadius, 0, Math.sin(jupiterAngle) * jupiterOrbitRadius);
+  jupiter.rotation.y = p * Math.PI * 2 * 2.4 + idleTime * IDLE.jupiterSpin;
+
+  const saturnAngle = saturnStartAngle + p * Math.PI * 2 * 0.22 + idleTime * IDLE.saturnOrbit;
   saturn.position.set(Math.cos(saturnAngle) * saturnOrbitRadius, 0, Math.sin(saturnAngle) * saturnOrbitRadius);
-  saturn.rotation.y = p * Math.PI * 2 * 1.0;
+  saturn.rotation.y = p * Math.PI * 2 * 1.0 + idleTime * IDLE.saturnSpin;
 
-  nebulaGroup.rotation.y = p * Math.PI * 0.2;
+  const uranusAngle = uranusStartAngle + p * Math.PI * 2 * 0.14 + idleTime * IDLE.uranusOrbit;
+  uranus.position.set(Math.cos(uranusAngle) * uranusOrbitRadius, 0, Math.sin(uranusAngle) * uranusOrbitRadius);
+  uranus.rotation.y = p * Math.PI * 2 * 0.8 + idleTime * IDLE.uranusSpin;
 
-  updateAsteroidBelt(p);
+  const neptuneAngle = neptuneStartAngle + p * Math.PI * 2 * 0.1 + idleTime * IDLE.neptuneOrbit;
+  neptune.position.set(Math.cos(neptuneAngle) * neptuneOrbitRadius, 0, Math.sin(neptuneAngle) * neptuneOrbitRadius);
+  neptune.rotation.y = p * Math.PI * 2 * 0.8 + idleTime * IDLE.neptuneSpin;
+
+  nebulaGroup.rotation.y = p * Math.PI * 0.2 + idleTime * IDLE.nebula;
+
+  updateAsteroidBelt(p, idleTime);
   updateComets(p);
 }
 
 // ================================
 // RENDER LOOP
-// requestAnimationFrame is still used to draw frames (required for the
-// composer / bloom pipeline and for the camera's easing), but every value
-// it reads is derived from scrollState.progress — nothing advances on its
-// own while the page is idle.
+// idleClock accumulates real elapsed seconds regardless of scrolling —
+// this is what actually drives the "still orbiting while idle" motion.
 // ================================
 
-// Smoothed scroll value: eases toward scrollState.progress instead of
-// snapping to it every tick, so orbits/camera glide rather than stutter.
-// It still only moves in response to scroll — it settles to a stop, it
-// doesn't drift on its own.
-let smoothedProgress = 0;
+const clock = new THREE.Clock();
+let idleClock = 0;
 
 function animate() {
   requestAnimationFrame(animate);
 
-  smoothedProgress += (scrollState.progress - smoothedProgress) * 0.08;
-  const p = smoothedProgress;
+  const delta = clock.getDelta();
+  idleClock += delta;
 
-  updateOrbits(p);
+  // scrollState.progress is already smoothed once by ScrollTrigger's
+  // scrub above — that's the single source of truth for scroll easing now.
+  const p = scrollState.progress;
+
+  updateOrbits(p, idleClock);
 
   const blend = getScrollBlend(p);
   updateScrollCamera(blend);

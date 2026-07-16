@@ -20,7 +20,7 @@
     }
 
     html {
-      scroll-behavior: smooth;
+      scroll-behavior: auto; /* Lenis handles smoothing now — don't stack this on top */
     }
 
     body {
@@ -78,6 +78,16 @@
       font-weight: 500;
       line-height: 1.6;
       padding: 0 50px;
+    }
+
+    .planet-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 10px;
+      font-style: normal;
     }
 
     /* ============ HERO ============ */
@@ -262,7 +272,7 @@
 
   <main class="container">
 
-    <!-- HERO -->
+    <!-- 1. HERO -->
     <section class="content-section hero-section">
       <div class="hero-content reveal">
         <div class="eyebrow">A Three.js Experiment</div>
@@ -278,7 +288,7 @@
       </div>
     </section>
 
-    <!-- INTRODUCTION -->
+    <!-- 2. INTRODUCTION -->
     <section class="content-section">
       <div class="card reveal">
         <h1>Introduction</h1>
@@ -298,7 +308,7 @@
       </div>
     </section>
 
-    <!-- SIZE -->
+    <!-- 3. SIZE -->
     <section class="content-section">
       <div class="card reveal">
         <h1>Size</h1>
@@ -315,7 +325,7 @@
       </div>
     </section>
 
-    <!-- SHAPE -->
+    <!-- 4. SHAPE -->
     <section class="content-section">
       <div class="card reveal">
         <h1>Shape</h1>
@@ -337,25 +347,60 @@
       </div>
     </section>
 
-    <!-- SOLAR SYSTEM -->
+    <!-- 5. SOLAR SYSTEM OVERVIEW -->
     <section class="content-section">
       <div class="card reveal">
         <h1>Our Solar System</h1>
         <p>
           The solar system consists of the Sun and everything
-          that travels around it, including planets,
-          moons, asteroids, and comets.
+          that travels around it, including eight planets,
+          dozens of moons, an asteroid belt, and countless comets.
         </p>
         <p>
-          Earth travels around the Sun while the Moon
-          travels around Earth.
+          From here we'll move outward, planet by planet,
+          starting with the one closest to the Sun.
         </p>
       </div>
     </section>
 
-    <!-- EARTH -->
+    <!-- 6. MERCURY -->
     <section class="content-section">
       <div class="card reveal">
+        <div class="planet-eyebrow">Planet One</div>
+        <h1>Mercury</h1>
+        <p>
+          Mercury is the smallest planet and the closest to the Sun.
+          It has almost no atmosphere to hold in heat, so temperatures
+          swing from scorching by day to freezing by night.
+        </p>
+        <p>
+          A year on Mercury — one full orbit — takes only about 88 Earth days,
+          making it the fastest-moving planet in the solar system.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. VENUS -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Two</div>
+        <h1>Venus</h1>
+        <p>
+          Venus is similar in size to Earth but couldn't feel more different.
+          A thick, toxic atmosphere traps heat so effectively that its
+          surface is the hottest of any planet, even hotter than Mercury.
+        </p>
+        <p>
+          Venus also spins backward compared to most planets, and it turns
+          so slowly that a single day there lasts longer than its year.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. EARTH -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Three</div>
         <h1>Earth</h1>
         <p>
           Earth is the third planet from the Sun and the
@@ -368,9 +413,10 @@
       </div>
     </section>
 
-    <!-- MOON -->
+    <!-- 9. MOON -->
     <section class="content-section">
       <div class="card reveal">
+        <div class="planet-eyebrow">Earth's Satellite</div>
         <h1>The Moon</h1>
         <p>
           The Moon is Earth's natural satellite.
@@ -379,7 +425,93 @@
       </div>
     </section>
 
-    <!-- CLOSING CTA -->
+    <!-- 10. MARS -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Four</div>
+        <h1>Mars</h1>
+        <p>
+          Mars is known as the Red Planet because iron oxide, or rust,
+          covers much of its surface. It's home to the largest volcano
+          and one of the deepest canyons in the solar system.
+        </p>
+        <p>
+          A day on Mars is close to a day on Earth, but its year is
+          almost twice as long, lasting about 687 Earth days.
+        </p>
+      </div>
+    </section>
+
+    <!-- 11. JUPITER -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Five</div>
+        <h1>Jupiter</h1>
+        <p>
+          Jupiter is the largest planet in the solar system, a gas giant
+          more massive than all the other planets combined. Its Great
+          Red Spot is a storm that has raged for centuries.
+        </p>
+        <p>
+          Jupiter also spins faster than any other planet — a single day
+          there lasts under ten hours.
+        </p>
+      </div>
+    </section>
+
+    <!-- 12. SATURN -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Six</div>
+        <h1>Saturn</h1>
+        <p>
+          Saturn is best known for its spectacular ring system, made up
+          of countless pieces of ice and rock. It's the least dense
+          planet in the solar system — light enough that it would float
+          in water.
+        </p>
+        <p>
+          Saturn has dozens of moons, including Titan, which is larger
+          than the planet Mercury.
+        </p>
+      </div>
+    </section>
+
+    <!-- 13. URANUS -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Seven</div>
+        <h1>Uranus</h1>
+        <p>
+          Uranus is tipped almost completely on its side, so it essentially
+          rolls along its orbit rather than spinning upright like the
+          other planets.
+        </p>
+        <p>
+          Its pale blue-green color comes from methane in its atmosphere,
+          which absorbs red light and reflects blue back into space.
+        </p>
+      </div>
+    </section>
+
+    <!-- 14. NEPTUNE -->
+    <section class="content-section">
+      <div class="card reveal">
+        <div class="planet-eyebrow">Planet Eight</div>
+        <h1>Neptune</h1>
+        <p>
+          Neptune is the farthest known planet from the Sun and the
+          windiest, with storms that can reach supersonic speeds.
+        </p>
+        <p>
+          It takes about 165 Earth years for Neptune to complete a
+          single orbit — it has only made one full trip since its
+          discovery in 1846.
+        </p>
+      </div>
+    </section>
+
+    <!-- 15. CLOSING CTA -->
     <section class="content-section cta-section">
       <div class="cta-content reveal">
         <h1>Built with Three.js + GSAP</h1>
